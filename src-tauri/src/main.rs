@@ -603,6 +603,8 @@ fn main() {
                 }
             });
 
+=======
+>>>>>>> 4278beb (fix: reopen window when clicking dock icon on macOS)
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -635,16 +637,6 @@ fn main() {
                 let _ = event.window().hide();
             }
         })
-        .build(tauri::generate_context!())
-        .expect("error while building tauri application")
-        .run(|app_handle, event| {
-            if let RunEvent::Reopen { has_visible_windows, .. } = event {
-                if !has_visible_windows {
-                    if let Some(window) = app_handle.get_window("main") {
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                    }
-                }
-            }
-        });
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
