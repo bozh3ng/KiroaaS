@@ -10,7 +10,7 @@ use auto_launch::AutoLaunch;
 use config::{AppConfig, load_config, save_config};
 use conversations::{Conversation, ConversationsData, load_conversations, save_conversations};
 use server::{ServerManager, ServerStatus};
-use tauri::{Manager, State, SystemTray, SystemTrayEvent, SystemTrayMenu, CustomMenuItem, AppHandle};
+use tauri::{Manager, RunEvent, State, SystemTray, SystemTrayEvent, SystemTrayMenu, CustomMenuItem, AppHandle};
 use tokio::sync::Mutex;
 
 #[cfg(target_os = "macos")]
@@ -635,6 +635,16 @@ fn main() {
                 let _ = event.window().hide();
             }
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| {
+            if let RunEvent::Reopen { has_visible_windows, .. } = event {
+                if !has_visible_windows {
+                    if let Some(window) = app_handle.get_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+            }
+        });
 }
